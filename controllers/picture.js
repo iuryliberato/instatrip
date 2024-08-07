@@ -23,8 +23,8 @@ router.post('/', async (req, res) => {
 //GET INDEX
 router.get('/', async (req, res) => {
   try {
-    const pictures = await Picture.find().populate('author')
-    return res.json(pictures)
+    const picture = await Picture.find().populate('author')
+    return res.json(picture)
   } catch (error) {
     console.error(error)
     return res.status(500).json({ error: error.message })
@@ -61,7 +61,7 @@ router.put('/:pictureId', async (req, res) => {
       throw new Error('Forbidden')
     }
 
-    const pictureToUpdate = await Picture.findByIdAndUpdate(pictureId, req.body, { new: true })
+    const pictureToUpdate = await Picture.findByIdAndUpdate(req.params.pictureId, req.body, { new: true })
     pictureToUpdate._doc.author = req.user
     return res.json(pictureToUpdate)
   }
@@ -94,6 +94,53 @@ router.delete('/:imageId', async (req, res) => {
       res.status(500)
     }
     return res.json({ error: error.message })
+  }
+})
+
+//COMMENTS
+router.post('/:pictureId/comments', async (req, res) => {
+  const { pictureId } = req.params
+  try {
+    req.body.author = req.user._id
+    const picture = await Picture.findById(pictureId)
+
+    if (!picture) {
+      res.status(404)
+      throw new Error('Picture not Found')
+    }
+
+    picture.comments.push(req.body)
+    await picture.save()
+    const newComment = picture.comments[picture.comments.length - 1]
+
+    newComment._doc.author = req.user
+
+    return res.status(201).json(newComment)
+  } catch (error) {
+    console.log(error)
+    if (res.statusCode === 200) {
+      res.status(500)
+    }
+    return res.json({ error: error.message })
+  }
+})
+
+//SHOW COMMENT
+
+router.get('/:pictureId', async (req, res) => {
+  try {
+    const picture = await Picture.findById(req.params.pictureId)
+      .populate('author')
+      .populate('comments.author')
+
+    if (!picture) {
+      res.status(404)
+      throw new Error('Picture not Found')
+    }
+    return res.json(picture)
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({ error: error.message })
   }
 })
 
