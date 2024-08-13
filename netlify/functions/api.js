@@ -25,6 +25,4 @@ app.use('/users', usersRouter);
 app.use('/profiles', profilesRouter);
 app.use('/picture', pictureRouter);
 
-app.listen(3000, () => {
-  console.log('The express app is ready!');
-});
+module.exports.handler = serverless(app)
