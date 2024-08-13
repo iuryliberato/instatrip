@@ -4,6 +4,23 @@ const Picture = require('../models/picture.js')
 const router = express.Router()
 
 //public routes
+// GET ONE
+router.get('/:pictureId', async (req, res) => {
+  try {
+    const picture = await Picture.findById(req.params.pictureId).populate('author')
+    if (!picture) {
+      res.status(404)
+      throw new Error('Picture not Found!')
+    }
+    return res.json(picture)
+  } catch (error) {
+    console.log(error)
+    if (res.statusCode === 200) {
+      res.status(500)
+    }
+    return res.json({ error: error.message })
+  }
+})
 
 //secure routes
 
@@ -30,23 +47,23 @@ router.get('/', async (req, res) => {
     return res.status(500).json({ error: error.message })
   }
 })
-// GET ONE
-router.get('/:pictureId', async (req, res) => {
-  try {
-    const picture = await Picture.findById(req.params.pictureId).populate('author')
-    if (!picture) {
-      res.status(404)
-      throw new Error('Picture not Found!')
-    }
-    return res.json(picture)
-  } catch (error) {
-    console.log(error)
-    if (res.statusCode === 200) {
-      res.status(500)
-    }
-    return res.json({ error: error.message })
-  }
-})
+// // GET ONE
+// router.get('/:pictureId', async (req, res) => {
+//   try {
+//     const picture = await Picture.findById(req.params.pictureId).populate('author')
+//     if (!picture) {
+//       res.status(404)
+//       throw new Error('Picture not Found!')
+//     }
+//     return res.json(picture)
+//   } catch (error) {
+//     console.log(error)
+//     if (res.statusCode === 200) {
+//       res.status(500)
+//     }
+//     return res.json({ error: error.message })
+//   }
+// })
 
 //UPDATE
 router.put('/:pictureId', async (req, res) => {
