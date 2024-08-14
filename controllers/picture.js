@@ -4,6 +4,16 @@ const Picture = require('../models/picture.js')
 const router = express.Router()
 
 //public routes
+//GET INDEX
+router.get('/', async (req, res) => {
+  try {
+    const picture = await Picture.find().populate('author')
+    return res.json(picture)
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({ error: error.message })
+  }
+})
 
 //secure routes
 
@@ -20,16 +30,7 @@ router.post('/', async (req, res) => {
     return res.status(500).json({ error: error.message })
   }
 })
-//GET INDEX
-router.get('/', async (req, res) => {
-  try {
-    const picture = await Picture.find().populate('author')
-    return res.json(picture)
-  } catch (error) {
-    console.error(error)
-    return res.status(500).json({ error: error.message })
-  }
-})
+
 // GET ONE
 router.get('/:pictureId', async (req, res) => {
   try {
